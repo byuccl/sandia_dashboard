@@ -7,8 +7,9 @@ This repo publishes the lab's radiation test dashboards on the web, behind a log
 | (this repo, `picker/`) | Picker page linking to each dashboard | https://test-results.byuccl.org/ | 8080 |
 | `sandia_sram_data_2026_10` | SRAM, TAMU October 2026 | https://tamu-sram-2026.byuccl.org/ | 8051 |
 | `sandia_stc_data_2026` | STC, TAMU May 2026 | https://tamu-stc-2026.byuccl.org/ | 8052 |
+| `sandia_combined_data_2026_06_sanitized` | SRAM, STC and STM32, LMTF Medusa June 2026 (dose rate) | https://lmtf-combined-2026.byuccl.org/ | 8053 |
 
-A third dashboard will be added later. See [Adding a dashboard](#adding-a-dashboard).
+To add another, see [Adding a dashboard](#adding-a-dashboard).
 
 ## Day-to-day use
 
@@ -32,6 +33,16 @@ Where each dashboard gets its data:
 
   Decoding needs the `main` branch of `sandia-dynamic-tester` installed in the SRAM virtualenv. On `ccl1` that's a separate worktree at `~/sandia-dynamic-tester-main`, so the regular checkout can stay on any branch. Create the virtualenv with `make -C sandia_sram_data_2026_10 env DVT_REPO_PATH=~/sandia-dynamic-tester-main`.
 - **STC** reads the submodule's `from_remote/` folder, as written by its `otv_sync`.
+- **June (combined)** is one dashboard for all three boards. It finds each run's board by which folder holds its `.mem`: `sram/post_mem/`, `stc/mem/` or `stm32/mem/`. Those are decoded from the committed `.otv` snapshots (git-ignored, 1.7 GB, about a minute with `-j8`). The decode scripts expect the repo to sit inside `sandia-dynamic-tester`, so pass the Python and the STM32 parser explicitly:
+
+  ```bash
+  make -C sandia_combined_data_2026_06_sanitized -j8 generate_mems \
+      VENV_PYTHON=$PWD/sandia_combined_data_2026_06_sanitized/.venv/bin/python \
+      STM32_OTV_PARSER=$HOME/sandia-dynamic-tester-main/test_vectors/stm32/sram_parse.py
+  make -C sandia_combined_data_2026_06_sanitized unzip_characterization   # for "split by preference bins"
+  ```
+
+  Its saved configurations live in the git-ignored `dashboard/db/configs.sqlite3`, so a fresh setup starts with none.
 
 Don't also run `make dashboard` in a submodule: the service already serves it.
 
@@ -61,6 +72,7 @@ browser ──https──▶ Cloudflare (login via Access) ──tunnel──▶
   - `byuccl-picker` (serves `picker/` with Python's built-in web server)
   - `byuccl-tamu-sram-2026`
   - `byuccl-tamu-stc-2026`
+  - `byuccl-lmtf-combined-2026`
 
   Each dashboard unit runs `make dashboard_serve` in its submodule, using that submodule's `.venv`.
 
@@ -167,6 +179,8 @@ git -C ~/sandia-dynamic-tester worktree add --detach ~/sandia-dynamic-tester-mai
 make -C sandia_sram_data_2026_10 env DVT_REPO_PATH=~/sandia-dynamic-tester-main
 make -C sandia_sram_data_2026_10 decode_shots   # about 9 minutes for 5,278 shots
 make -C sandia_stc_data_2026 env
+make -C sandia_combined_data_2026_06_sanitized env DVT_REPO_PATH=~/sandia-dynamic-tester-main
+# then decode the June data, as described under "Where each dashboard gets its data"
 make install_services   # asks for your sudo password
 ```
 
@@ -174,16 +188,10 @@ make install_services   # asks for your sudo password
 
 ## Adding a dashboard
 
-1. Add the data repo as a submodule. Make sure its Makefile has a `dashboard_serve` target that takes `DASHBOARD_HOST` and `DASHBOARD_PORT`, like the existing two.
-2. In the `Makefile`:
-   - add `<X>_NAME`, `<X>_SUBMODULE`, `<X>_HOST` and `<X>_PORT` (next free port, e.g. 8053)
-   - add the site to `SITES`
-   - add the service to `SERVICES`
-   - add a unit rule like the SRAM one
-   - add the hostname to the `tunnel_setup` loop and to the `sed` lines in `tunnel_config`
-3. Add an ingress rule to `cloudflared/config.yml.in`, above the final catch-all rule.
-4. Add a card to `picker/index.html`.
-5. Run `make -C <submodule> env`, then `make tunnel_setup`, then `make install_services`.
+1. Add the data repo as a submodule. Make sure its Makefile has a `dashboard_serve` target that takes `DASHBOARD_HOST` and `DASHBOARD_PORT`, like the existing ones.
+2. In the `Makefile`, add a key (e.g. `X`) to `DASHBOARDS` and set `X_NAME` (the subdomain), `X_SUBMODULE`, `X_PORT` (next free port, e.g. 8054) and `X_ARGS` (extra variables for its `dashboard_serve`, often empty). The service, tunnel rule, DNS record and status line are all derived from these.
+3. Add a card to `picker/index.html`.
+4. Run `make -C <submodule> env`, then `make tunnel_setup`, then `make install_services`.
 
 The new hostname is covered by the `*.byuccl.org` login automatically.
 

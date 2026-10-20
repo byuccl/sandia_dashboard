@@ -4,3 +4,6 @@
 [submodule "sandia_stc_data_2026"]
 	path = sandia_stc_data_2026
 	url = git@github.com:byuccl/sandia_stc_data_2026.git
+[submodule "sandia_combined_data_2026_06_sanitized"]
+	path = sandia_combined_data_2026_06_sanitized
+	url = git@github.com:byuccl/sandia_combined_data_2026_06_sanitized.git

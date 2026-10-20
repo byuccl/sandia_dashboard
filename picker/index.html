@@ -87,22 +87,29 @@
 <main>
   <p class="eyebrow">BYU CCL</p>
   <h1>Radiation Test Dashboards</h1>
-  <p class="lede">Live dashboards for heavy-ion tests at the Texas A&amp;M Cyclotron. Pick a test to open its dashboard.</p>
+  <p class="lede">Dashboards for the lab's radiation tests. Pick a test to open its dashboard.</p>
 
-  <!-- To add a dashboard: copy an <li>, then add its hostname and port in the
-       Makefile and cloudflared/config.yml.in (see README.md). -->
+  <!-- To add a dashboard: copy an <li>, and add it to DASHBOARDS in the
+       Makefile (see README.md). -->
   <ul>
     <li>
       <a class="card" href="https://tamu-sram-2026.byuccl.org/">
         <div class="card-title"><h2>SRAM: October 2026</h2><span class="arrow">Open →</span></div>
-        <p>Discrete 512K×8 SRAM, segmented runs.</p>
+        <p>Heavy-ion, Texas A&amp;M Cyclotron. Discrete 512K×8 SRAM, segmented runs.</p>
         <div class="host">tamu-sram-2026.byuccl.org</div>
+      </a>
+    </li>
+    <li>
+      <a class="card" href="https://lmtf-combined-2026.byuccl.org/">
+        <div class="card-title"><h2>SRAM, STC and STM32: June 2026</h2><span class="arrow">Open →</span></div>
+        <p>Dose rate, LMTF Medusa. All three boards in one dashboard.</p>
+        <div class="host">lmtf-combined-2026.byuccl.org</div>
       </a>
     </li>
     <li>
       <a class="card" href="https://tamu-stc-2026.byuccl.org/">
         <div class="card-title"><h2>STC: May 2026</h2><span class="arrow">Open →</span></div>
-        <p>Cross-sections across LETs and data patterns.</p>
+        <p>Heavy-ion, Texas A&amp;M Cyclotron. Cross-sections across LETs and data patterns.</p>
         <div class="host">tamu-stc-2026.byuccl.org</div>
       </a>
     </li>
