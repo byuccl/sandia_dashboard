@@ -1,0 +1,12 @@
+[Unit]
+Description=@NAME@ dashboard (@HOST@)
+After=network.target
+
+[Service]
+User=@USER@
+ExecStart=/usr/bin/make --no-print-directory -C @REPO@/@SUBMODULE@ dashboard_serve DASHBOARD_HOST=127.0.0.1 DASHBOARD_PORT=@PORT@ @ARGS@
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

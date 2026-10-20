@@ -1,0 +1,15 @@
+# Template for the Cloudflare Tunnel config. `make tunnel_config` fills in the
+# @...@ values from the Makefile and writes the git-ignored config.yml next to
+# this file. Edit this template, not config.yml.
+tunnel: @TUNNEL_ID@
+credentials-file: @CREDENTIALS_FILE@
+
+# Rules are matched top to bottom; the last rule catches everything else.
+ingress:
+  - hostname: @PICKER_HOST@
+    service: http://127.0.0.1:@PICKER_PORT@
+  - hostname: @SRAM_HOST@
+    service: http://127.0.0.1:@SRAM_PORT@
+  - hostname: @STC_HOST@
+    service: http://127.0.0.1:@STC_PORT@
+  - service: http_status:404

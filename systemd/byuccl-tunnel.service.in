@@ -1,0 +1,13 @@
+[Unit]
+Description=Cloudflare Tunnel for byuccl.org dashboards
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+User=@USER@
+ExecStart=@CLOUDFLARED@ --no-autoupdate --config @REPO@/cloudflared/config.yml tunnel run
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
